@@ -6,6 +6,8 @@ import toast, { Toaster } from "react-hot-toast";
 import PhotosGallery from "../PhotosGallery/PhotosGallery";
 import { useState } from "react";
 import type { Photo } from "../../types/photo";
+import Loader from "../Loader/Loader";
+import Text from "../Text/Text";
 
 // import { useEffect } from "react";
 
@@ -18,14 +20,28 @@ export default function App() {
   //   handleSearch();
   // }, []);
   const [photos, setPhotos] = useState<Photo[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [isError, setIsError] = useState(false)
 
   const handleSubmit = async (query: string) => {
-    const response = await getPhotos(query);
-    if (response.length === 0) {
-      toast.error("No photos found...")
-      return
+   
+    try {
+      setPhotos([])
+      setIsLoading(true)
+      setIsError(false)
+      const response = await getPhotos(query);
+      if (response.length === 0) {
+        toast.error("No photos found...")
+        return
+      }
+      setPhotos(response);
+    } catch {
+      setIsError(true)
+      
+    } finally {
+      setIsLoading(false)
     }
-    setPhotos(response);
+   
   };
 
   return (
@@ -34,7 +50,9 @@ export default function App() {
         <Container>
           <Toaster/>
           <Form onSubmit={handleSubmit} />
-          <PhotosGallery photos={photos}/>
+          {photos.length > 0 && <PhotosGallery photos={photos} />}
+          {isLoading && <Loader />}
+          {isError && <Text>Some went wrong...</Text>}
         </Container>
       </Section>
     </>
