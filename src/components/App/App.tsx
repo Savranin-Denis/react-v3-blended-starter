@@ -8,6 +8,7 @@ import { useState } from "react";
 import type { Photo } from "../../types/photo";
 import Loader from "../Loader/Loader";
 import Text from "../Text/Text";
+import Modal from "../Modal/Modal";
 
 // import { useEffect } from "react";
 
@@ -22,6 +23,7 @@ export default function App() {
   const [photos, setPhotos] = useState<Photo[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   const handleSubmit = async (query: string) => {
    
@@ -29,6 +31,7 @@ export default function App() {
       setPhotos([])
       setIsLoading(true)
       setIsError(false)
+
       const response = await getPhotos(query);
       if (response.length === 0) {
         toast.error("No photos found...")
@@ -44,15 +47,25 @@ export default function App() {
    
   };
 
+  const handlePhotoClick = (photo: Photo | null) => { 
+    setSelectedPhoto(photo);
+  } 
+
   return (
     <>
       <Section>
         <Container>
           <Toaster/>
           <Form onSubmit={handleSubmit} />
-          {photos.length > 0 && <PhotosGallery photos={photos} />}
+          {photos.length > 0 && <PhotosGallery photos={photos} handlePhotoClick={handlePhotoClick}/>}
           {isLoading && <Loader />}
           {isError && <Text>Some went wrong...</Text>}
+          {selectedPhoto && (
+            <Modal onClose={()=>handlePhotoClick(null)}> <img
+              src={selectedPhoto.src.large}
+              alt={selectedPhoto.alt}
+            /></Modal>
+          )}
         </Container>
       </Section>
     </>
