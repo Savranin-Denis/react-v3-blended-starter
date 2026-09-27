@@ -8,6 +8,11 @@ interface FetchPostsReturn {
   totalCount: number;
 }
 
+export interface NewPost {
+  title: string;
+  body: string;
+}
+
 export const fetchPosts = async (searchText: string, page: number): Promise<FetchPostsReturn> => {
   const resp = await axios.get<Post[]>("/posts", {
     params: {
@@ -24,7 +29,10 @@ export const fetchPosts = async (searchText: string, page: number): Promise<Fetc
   };
 };
 
-export const createPost = async (newPost) => {};
+export const createPost = async (newPost: NewPost): Promise<Post> => {
+  const { data } = await axios.post<Post>("/posts", newPost);
+  return data;
+};
 
 export const editPost = async (newDataPost) => {};
 

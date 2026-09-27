@@ -1,11 +1,39 @@
 import * as Yup from "yup";
-import { Field, Form, Formik, FormikHelpers, ErrorMessage } from "formik";
-
+import { Field, Form, Formik, ErrorMessage } from "formik";
 import css from "./CreatePostForm.module.css";
+import { createPost, type NewPost } from "../../services/postService";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+const initialValues: NewPost = {
+  title: "",
+  body: "",
+};
+
+const PostSchema = Yup.object().shape({
+  title: Yup.string()
+    .min(3, "At least 3 characters")
+    .max(50, "No more 50 characters")
+    .required("Title is required"),
+  body: Yup.string().max(500, "No more 500 characters").required("Title is required"),
+});
 
 export default function PostForm() {
+  const handleSubmit = (values: NewPost) => {
+    mutate(values);
+  };
+
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      alert("Posts successfully created");
+    },
+  });
+
   return (
-    <Formik initialValues={} onSubmit={} validationSchema={}>
+    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={PostSchema}>
       <Form className={css.form}>
         <div className={css.formGroup}>
           <label htmlFor="title">Title</label>
@@ -23,7 +51,7 @@ export default function PostForm() {
           <button type="button" className={css.cancelButton}>
             Cancel
           </button>
-          <button type="submit" className={css.submitButton} disabled={}>
+          <button type="submit" className={css.submitButton} disabled={isPending}>
             Create post
           </button>
         </div>
