@@ -76,7 +76,11 @@ export default function UsersMenu() {
             }}
           >
             <li className={css.menuItem}>
-              <Link href={`/posts/filter/All`} className={css.menuLink}>
+              <Link
+                onClick={() => setIsOpenMenu(false)}
+                href={`/posts/filter/All`}
+                className={css.menuLink}
+              >
                 All users
               </Link>
             </li>
